@@ -1,8 +1,9 @@
 require 'sinatra'
 require 'sinatra/json'
 
+# The wordinator takes words supplied from the params hash and gives certain
+# statistics on them.
 class Wordinator
-  attr_reader :words
   def initialize(words)
     @words = words
   end
@@ -14,11 +15,11 @@ class Wordinator
   end
 
   def palindrome?
-    analyze { |w| w.reverse.downcase == w.downcase}
+    analyze { |w| w.reverse.downcase == w.downcase }
   end
 
   def length
-    analyze { |w| w.length }
+    analyze(&:length)
   end
 
   def capitalized?
