@@ -8,17 +8,11 @@ class Wordinator
     @words = words
   end
 
-  def analyze
-    json_hash = {}
-    @words.each { |word| json_hash[word] = yield(word) }
-    json_hash
-  end
-
   def palindrome?
     analyze { |w| w.reverse.downcase == w.downcase }
   end
 
-  def length
+  def length?
     analyze(&:length)
   end
 
@@ -27,6 +21,8 @@ class Wordinator
   end
 
   def anagram?
+    return "Argument error: #{@words.size} for 2" unless @words.size == 2
+
     hash = {}
     @words.each do |word|
       hash[word] = Hash.new(0)
@@ -36,24 +32,29 @@ class Wordinator
     end
     hash[@words[0]].eql?(hash[@words[1]])
   end
+
+  private
+
+  def analyze
+    json_hash = {}
+    @words.each { |word| json_hash[word] = yield(word) }
+    json_hash
+  end
+end
+
+def wordinate(*args)
+  query = params[:action].to_s + '?'
+  Wordinator.new(args).public_send(query)
 end
 
 get '/' do
   erb :index
 end
 
-get '/palindrome/:word' do
-  json Wordinator.new([params[:word]]).palindrome?
+get '/:action/:word' do
+  json wordinate(params[:word])
 end
 
-get '/length/:word' do
-  json Wordinator.new([params[:word]]).length
-end
-
-get '/capitalized/:word' do
-  json Wordinator.new([params[:word]]).capitalized?
-end
-
-get '/anagram/:word1/:word2' do
-  json Wordinator.new([params[:word1], params[:word2]]).anagram?
+get '/:action/:word1/:word2' do
+  json wordinate(params[:word1], params[:word2])
 end
