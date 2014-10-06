@@ -21,9 +21,7 @@ class Wordinator
   end
 
   def anagram?
-    unless @words.size == 2
-      return "Anagram argument error: #{@words.size} for 2"
-    end
+    return 'Anagram must have 2 arguments' unless @words.size == 2
 
     hash = {}
     @words.each do |word|
@@ -75,5 +73,3 @@ end
 get '/:action/:word1/:word2/:word3?/?' do
   json wordinate(params[:word1], params[:word2], params[:word3])
 end
-
-
