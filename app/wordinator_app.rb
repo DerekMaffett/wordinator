@@ -21,7 +21,9 @@ class Wordinator
   end
 
   def anagram?
-    return "Argument error: #{@words.size} for 2" unless @words.size == 2
+    unless @words.size == 2
+      return "Anagram argument error: #{@words.size} for 2"
+    end
 
     hash = {}
     @words.each do |word|
@@ -45,16 +47,33 @@ end
 def wordinate(*args)
   query = params[:action].to_s + '?'
   Wordinator.new(args).public_send(query)
+  rescue NoMethodError
+    redirect to('/wow-very-error-much-sorry')
 end
 
 get '/' do
   erb :index
 end
 
-get '/:action/:word' do
+get '/wow-very-error-much-sorry' do
+  erb :error
+end
+
+# FIXME: This implementation is still unwieldy since it requires expansion for
+# every new word that gets tested. Ideally, these routes should be reduced to
+# no more than one - they have been left at three simply to demonstrate
+# the app's capabilities.
+
+get '/:action/:word?/?' do
   json wordinate(params[:word])
 end
 
-get '/:action/:word1/:word2' do
+get '/:action/:word1/:word2?/?' do
   json wordinate(params[:word1], params[:word2])
 end
+
+get '/:action/:word1/:word2/:word3?/?' do
+  json wordinate(params[:word1], params[:word2], params[:word3])
+end
+
+
