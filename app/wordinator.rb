@@ -7,24 +7,33 @@ class Wordinator
     @words = words
   end
 
-  def palindrome
+  def analyze
     json_hash = {}
-    @words.each do |word|
-      json_hash[word] = (word.reverse.downcase == word.downcase)
-    end
+    @words.each { |word| json_hash[word] = yield(word) }
     json_hash
+  end
+
+  def palindrome?
+    analyze { |w| w.reverse.downcase == w.downcase}
   end
 
   def length
-    json_hash = {}
-    @words.each { |word| json_hash[word] = word.length }
-    json_hash
+    analyze { |w| w.length }
   end
 
-  def capitalized
-    json_hash = {}
-    @words.each { |word| json_hash[word] = ('A'..'Z').include?(word[0])}
-    json_hash
+  def capitalized?
+    analyze { |w| ('A'..'Z').include?(w[0]) }
+  end
+
+  def anagram?
+    hash = {}
+    @words.each do |word|
+      hash[word] = Hash.new(0)
+      word.downcase.each_char do |c|
+        hash[word][c] += 1
+      end
+    end
+    hash[@words[0]].eql?(hash[@words[1]])
   end
 end
 
@@ -33,7 +42,7 @@ get '/' do
 end
 
 get '/palindrome/:word' do
-  json Wordinator.new([params[:word]]).palindrome
+  json Wordinator.new([params[:word]]).palindrome?
 end
 
 get '/length/:word' do
@@ -41,5 +50,9 @@ get '/length/:word' do
 end
 
 get '/capitalized/:word' do
-  json Wordinator.new([params[:word]]).capitalized
+  json Wordinator.new([params[:word]]).capitalized?
+end
+
+get '/anagram/:word1/:word2' do
+  json Wordinator.new([params[:word1], params[:word2]]).anagram?
 end
